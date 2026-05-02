@@ -1,0 +1,84 @@
+2. Secured and monitored web infrastructure
+
+User types https://www.foobar.com in the browser.
+DNS sends the request to the load balancer.
+The request goes through a firewall.
+HAProxy receives the HTTPS request.
+HAProxy uses the SSL certificate to decrypt the traffic.
+Then HAProxy sends the request to one of the two servers.
+Each server has Nginx, an application server, codebase, MySQL, and a monitoring client.
+
+Infrastructure:
+
+User
+  |
+DNS: www.foobar.com
+  |
+Firewall
+  |
+HAProxy load balancer + SSL certificate + monitoring client
+  |
+  |----------------|
+  v                v
+Firewall          Firewall
+Server 1          Server 2
+Nginx             Nginx
+App server        App server
+Codebase          Codebase
+MySQL Primary     MySQL Replica
+Monitoring        Monitoring
+
+Why we added firewalls:
+Firewalls protect the servers from unwanted traffic.
+They allow only trusted traffic, such as HTTP, HTTPS, or SSH from allowed sources.
+
+Why we added an SSL certificate:
+The SSL certificate allows the website to use HTTPS.
+HTTPS encrypts the traffic between the user and the website.
+This protects sensitive data like passwords and personal information.
+
+Why we added monitoring clients:
+Monitoring clients collect information about each server.
+They help us know if a server is down, slow, overloaded, or has errors.
+
+What firewalls are for:
+Firewalls control incoming and outgoing network traffic.
+They block dangerous or unauthorized traffic.
+
+Why traffic is served over HTTPS:
+HTTPS keeps communication secure by encrypting data.
+It also helps users trust the website.
+
+What monitoring is used for:
+Monitoring is used to check server health and performance.
+It can track CPU, memory, disk usage, network traffic, errors, and application status.
+
+How the monitoring tool collects data:
+A monitoring client is installed on each server.
+The client collects logs and metrics.
+Then it sends the data to a monitoring service like Sumologic.
+
+How to monitor web server QPS:
+QPS means queries per second or requests per second.
+To monitor QPS, we can collect Nginx access logs or Nginx metrics.
+The monitoring client sends this data to the monitoring service.
+Then we create a dashboard or alert to show the number of requests per second.
+
+Issues with this infrastructure:
+
+1. SSL termination at the load balancer:
+SSL is terminated at HAProxy.
+This means traffic is encrypted between the user and HAProxy, but may not be encrypted between HAProxy and the servers.
+This can be a security risk inside the network.
+
+2. Only one MySQL server accepts writes:
+Only the Primary database can accept write operations.
+If the Primary database fails, the application cannot write new data.
+This makes the Primary database a single point of failure for writes.
+
+3. Same components on every server:
+Each server has Nginx, application server, codebase, and MySQL.
+This can be hard to manage and scale.
+If one component needs more resources, we cannot scale it separately.
+For example, the database may need more power than the web server.
+It is better to separate components into different dedicated servers when the system grows.
