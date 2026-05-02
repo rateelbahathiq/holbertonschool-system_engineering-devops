@@ -1,0 +1,57 @@
+3. Scale up
+
+User types https://www.foobar.com in the browser.
+DNS sends the request to the load balancer.
+The load balancer sends the request to one of the web servers.
+The web server sends the request to the application server.
+The application server processes the request and gets data from the database.
+
+Infrastructure:
+
+User
+  |
+DNS: www.foobar.com
+  |
+Load Balancer 1 (HAProxy)
+Load Balancer 2 (HAProxy - cluster)
+  |
+  |-----------|
+  v           v
+Web Server 1  Web Server 2 (Nginx)
+      |
+Application Server
+      |
+Database Server (MySQL)
+
+Why we added a second load balancer:
+We added another load balancer to avoid single point of failure.
+If one load balancer goes down, the other one will still work.
+
+Why we added another server:
+We added more servers to handle more traffic.
+This helps the system scale and support more users.
+
+Why we split components:
+
+Web server:
+Handles HTTP requests and serves static files.
+
+Application server:
+Runs the application logic and processes requests.
+
+Database server:
+Stores and manages data.
+
+Splitting them is better because:
+Each part can scale separately.
+For example, if we need more performance, we can upgrade only the database or only the web servers.
+
+Application server vs web server:
+
+Web server:
+Handles requests from users and serves static content.
+
+Application server:
+Handles logic, runs code, and talks to the database.
+
+This design is better because it is more flexible and easier to scale.
